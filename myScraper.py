@@ -29,6 +29,9 @@ def getTweets(usrNm, flag):
     for item in tweetdivs:
         try:
             content = item.find('div', {'class': 'content'}).find('p', {'class': 'tweet-text', 'lang': 'en'}).text.replace('\n', ' ').replace('"', '')
+            if '\n' in content:
+                newcontent = content.replace('\n', ' ')
+                content = newcontent
             timestamp = item.find('a', {'class': 'tweet-timestamp'})['title']
             try:
                 data.write(timestamp + '|' + content + '\n')

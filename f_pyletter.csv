@@ -1,3 +1,11 @@
+1:11 PM - 29 Nov 2015|#Python #Developer needed for a 3 month contract in West #London. #SQL #Django #Flask get in touch for more info, #tech driven client!
+2:08 AM - 25 Nov 2015|The 5 stages of debugging:  1. What? 2. Why? 3. How? 4. Impossible. 5. Oh.
+1:35 AM - 24 Nov 2015|python tip: don't use assert but in your tests. Or make sure you understand they can be stripped when Python is run with -O
+2:46 PM - 22 Nov 2015|#python pop quiz:  What does this print? >>> x = 10 >>> s = [x**2 for x in range(5)] >>> print(x)
+9:19 PM - 16 Nov 2015|Programming tip: many of those arrays and hashes in your code should actually be sets. Match data structures to data constraints!
+7:44 AM - 21 Nov 2015|When I first looked at Python, I didn't see what the big deal was. It looked so plain. Then I realized that WAS the big deal.
+10:35 AM - 21 Nov 2015|#python tip:  When your intended variable name is a keyword, PEP 8 recommends affixing an underscore:     lambda_ = 0.2    class_ = True
+7:27 AM - 20 Mar 2015|Sometimes when I'm writing Javascript I want to throw up my hands and say this is bullshit! but I can never remember what this refers to
 7:29 AM - 18 Nov 2015|OH: We need a Venn diagram for data science that combines impostor syndrome, regular expressions, and storytelling.
 9:42 AM - 3 Nov 2015|Between containers, cluster managers and virtual machines we've lost track of where our code even is. #inception
 4:59 AM - 14 Nov 2015|Count on @pyletter for the most awesome Python news.
