@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 import webbrowser
 import pdb
 import tweepy
-
+import os
 
 
 def getTweets(usrNm, flag):
@@ -29,9 +29,11 @@ def getTweets(usrNm, flag):
     for item in tweetdivs:
         try:
             content = item.find('div', {'class': 'content'}).find('p', {'class': 'tweet-text', 'lang': 'en'}).text.replace('\n', ' ').replace('"', '')
-            if '\n' in content:
-                newcontent = content.replace('\n', ' ')
-                content = newcontent
+            words = re.findall("[-'#@\w]+", content)
+            s = ''
+            for word in words:
+                s = s + word + ' '
+            content = s
             timestamp = item.find('a', {'class': 'tweet-timestamp'})['title']
             try:
                 data.write(timestamp + '|' + content + '\n')
@@ -72,6 +74,8 @@ def id_to_username(ID):
 
 usrNm = raw_input('Provide your username: @')
 followers_ids = []
+os.mkdir(usrNm)
+os.chdir('./' + usrNm)
 getTweets(usrNm, 'u')
 consumer_key = "uyLBbpnlVe5KiBy9oU1Zz5C2F" 
 consumer_secret = "S9qN3td9JbCaM6SMEHDjjZlu8FOeyWucGHOye2RhtJdO4YEeNx"
@@ -96,3 +100,7 @@ for follower in followers_unames:
     except:
         print follower
         pass
+os.chdir('../')
+infodata = open(usrNm + '.info', 'w')
+infodata.write(usrNm)
+infodata.close()

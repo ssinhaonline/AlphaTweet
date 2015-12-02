@@ -21,7 +21,11 @@ def read_and_parse(filename):
         pass
     return [csvfile.name[2:-4], newlines]
         
-
+infofile = glob('*.info')
+with open(infofile[0], 'r') as u:
+    userinfo = u.readline().strip()
+print userinfo
+os.chdir('./' + userinfo)
 userfile = glob('u_*.csv')
 userdata = read_and_parse(userfile[0])
 #print userdata
@@ -60,3 +64,4 @@ for follower in follower_tweet_map:
     print 'Test set = ' + str(len(follower_tweet_map[follower][1]))
 
 [os.remove(f) for f in glob('*.jpg')]
+os.chdir('../')
