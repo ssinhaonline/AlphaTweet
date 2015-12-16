@@ -1,13 +1,20 @@
+'''
+@author: ssinhaonline
+'''
 from glob import glob
 import csv
 import datetime as dt
 import os
 import pdb
 from nltk.corpus import stopwords
+import re
 
 cachedStopwords = stopwords.words('english')
 
 def wordify(tokenized_tweet, tweet_list):
+    '''
+    Returns a word count dictionary in a given lsit of words
+    '''
     tweet_words = []
     rt_dict = {}
     for tweet in tweet_list:
@@ -21,10 +28,11 @@ def wordify(tokenized_tweet, tweet_list):
     return rt_dict
 
 def read_and_parse(filename):
+    '''
+    Parse CSV files to list
+    '''
     import csv
     csvfile = open(filename, 'rb')
-    #if csvfile.name == 'f_MridulKRC.csv':
-        #pdb.set_trace()
     lines = csv.reader(csvfile, delimiter = '|')
     newlines = []
     try:
@@ -35,6 +43,9 @@ def read_and_parse(filename):
     return [csvfile.name[2:-4], newlines]
 
 def divide_dataset(tweet_list):
+    '''
+    Divides the passed tweets set into training and test set with a 75%-25% ratio
+    '''
     train_tweet_list = []
     test_tweet_list = []
     
@@ -50,6 +61,9 @@ def divide_dataset(tweet_list):
     return [train_tweet_list, test_tweet_list]
 
 def get_followers_data():
+    '''
+    Collects all followers files into one dictionary
+    '''
     followerfiles = glob('f_*.csv')
     followerdata_temp = []
     follower_tweet_map = {}
@@ -74,6 +88,10 @@ def get_followers_data():
     return follower_tweet_map
 
 def get_all_data(username):
+    '''
+    Takes the username and finds all data related to the particular user.
+    Returns: User dictionary, followers dictionary
+    '''
     infofile = glob(username + '.info')
     with open(infofile[0], 'r') as u:
         userinfo = u.readline().strip()
@@ -85,6 +103,11 @@ def get_all_data(username):
     return [user_ent, followers_ent]
 
 def classify(user, input_tweet, user_tweets, follower_tweets):
+    '''
+    Input: username, input tweet in tokenized form, users dictionary, followers dictionary
+    Returns: Possible number of retweets
+    Performs Bayesian classification according to the IRTF and TRFF concepts described in the report
+    '''
     input_tweet = [word for word in input_tweet if word not in cachedStopwords]
     follower_wordified = []
     for follower in follower_tweets:
@@ -100,12 +123,18 @@ def classify(user, input_tweet, user_tweets, follower_tweets):
             if wordifies[key] != 0:
                 follower[key] = (follower[key] * 1.0)/wordifies[key]
             else:
-                follower[key] = 0.0000001
+                follower[key] = -1
     total_rt = 0
     for row in user_tweets[user][0]:
         row[1] = row[1]
-        row[2] = int(row[2])
-        row[3] = int(row[3])
+        try:
+            row[2] = int(row[2])
+        except:
+            row[2] = int(float(row[2][:-1]) * 1000)
+        try:
+            row[3] = int(row[3])
+        except:
+            row[3] = int(float(row[3][:-1]) * 1000)
         total_rt += row[2]
     user_tweet_wc = {}
     for word in input_tweet:
@@ -116,17 +145,18 @@ def classify(user, input_tweet, user_tweets, follower_tweets):
                 user_tweet_wc[word] += tweet[2]
     for key in user_tweet_wc:
         user_tweet_wc[key] = (user_tweet_wc[key] * 1.0) / total_rt
-    #print user_tweet_wc
-    #print follower_wordified
     rt_prob = []
     for follower in follower_wordified:
-        foll_prob = 0
+        foll_prob = 0 
         for word in follower:
-            foll_prob += follower[word] * user_tweet_wc[word]
+            if follower[word] == -1:
+                continue
+            else:
+                foll_prob += follower[word] * user_tweet_wc[word] 
         rt_prob.append(foll_prob)
     exp_rt_count = 0
     for i in range(len(rt_prob)):
-        if rt_prob[i] > 0.001:
+        if rt_prob[i] > 0.001: 
             exp_rt_count += 1
     return exp_rt_count
 
@@ -137,28 +167,28 @@ def main():
     import sys
     import pdb
     from math import fabs
-    user = 'mulaney'#sys.argv[1]
+    from scipy.stats.stats import pearsonr
+    user = sys.argv[1] 
     user_tweets, follower_tweets = get_all_data(user)
     #user, Train set: user_tweets[user][0], Test set: user_tweets[user][1]
     #for each follower, Train set: follower_tweets[follower][0], Test set: follower_tweets[follower][1]
-    input_tweet = raw_input("Enter your tweet for analysis: ").lower().split()
+    input_tweet = raw_input("Enter your tweet for analysis: ").lower()
+    input_tweet = re.findall("[-'#@\w]+", input_tweet)
+    #classify input tweet
     exp_rt = classify(user, input_tweet, user_tweets, follower_tweets)
     print "Possible number of retweets: " + str(exp_rt)
-    #pdb.set_trace()
-    total_exp_rt = 0
-    total_actual_rt = 0
+    predicted_rt = []
+    actual_rt = []
     for tweet in user_tweets[user][1]:
+        #classify and store each tweet of test set
         exp_test_rt = classify(user, tweet[1], user_tweets, follower_tweets)
-        print tweet[1]
-        print exp_test_rt
-        print tweet[2]
-        total_actual_rt += int(tweet[2])
-        total_exp_rt += exp_test_rt
-    total_err = fabs(total_actual_rt - total_exp_rt)
-    print "Error rate: " + str((total_err * 100.0)/total_actual_rt) + "%"
+        predicted_rt.append(float(exp_test_rt))
+        actual_rt.append(float(tweet[2]))
+    print 'Pearson coefficient: ' + str(pearsonr(predicted_rt, actual_rt))
 
-    '''[os.remove(f) for f in glob('*.jpg')]
-    os.chdir('../')'''
+    #uncomment these lines for singleton classification
+    '''[os.remove(f) for f in glob(*.jpg)]
+    os.chdir(../)'''
 
 if __name__ == "__main__":
     main()

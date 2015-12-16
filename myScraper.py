@@ -89,7 +89,6 @@ def getTweets(usrNm, flag):
                     pass
             data.close()
             print 'File written: ' + data.name
-        #return tweets
 
 def sourceExtractor(url):
     """Get the source code of the passed url"""
@@ -98,7 +97,6 @@ def sourceExtractor(url):
     driver = webdriver.Firefox()
     driver.get(url)
     lensrc1 = driver.execute_script("return document.body.scrollHeight")
-    #pdb.set_trace()
     while(True):
         driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
         sleep(2)
@@ -152,8 +150,6 @@ for ID in followers_ids:
         followers_unames.append(str(id_to_username(ID)))
     except:
         pass
-#print followers_unames
-#print followers
 for follower in followers_unames:
     try:
         getTweets(follower, 'f')
